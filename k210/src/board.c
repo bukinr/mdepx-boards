@@ -41,7 +41,7 @@
 
 #include <dev/uart/uart_16550.h>
 
-#include <riscv/sifive/e300g_clint.h>
+#include <machine/clint.h>
 #include <riscv/kendryte/k210.h>
 
 #include "board.h"
@@ -135,6 +135,13 @@ fpioa_pins_configure(void)
 
 	/* Set some random pins: not in use. */
 
+	/* GPIOHS1 -> PIN 17 */
+	bzero(&cfg, sizeof(struct fpioa_io_config));
+	cfg.ch_sel = FPIOA_FUNC_GPIOHS1;
+	cfg.ds = 0xf;
+	cfg.oe_en = 1;
+	k210_fpioa_set_config(&dev_fpioa, 17, &cfg);
+
 	/* GPIOHS20 -> PIN 36 */
 	bzero(&cfg, sizeof(struct fpioa_io_config));
 	cfg.ch_sel = FPIOA_FUNC_GPIOHS20;
@@ -219,7 +226,7 @@ board_init(void)
 	k210_sysctl_init(&sysctl_sc, BASE_SYSCTL);
 	k210_fpioa_init(&dev_fpioa, BASE_FPIOA);
 	fpioa_pins_configure();
-	e300g_clint_init(&clint_sc, BASE_CLINT, 8000000);
+	clint_init(&clint_sc, (void *)BASE_CLINT, 8000000);
 
 	/* GPIO */
 	k210_gpiohs_init(&dev_gpiohs, BASE_GPIOHS);
